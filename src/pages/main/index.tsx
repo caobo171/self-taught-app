@@ -22,6 +22,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import styled from 'styled-components/native'
 
 import ProgressBar from '../../components/ProgressBar'
+import { TaskType } from 'src/types';
+import TaskItem from './TaskItem';
 
 
 const StyledAddButton = styled(TouchableOpacity)`
@@ -106,8 +108,11 @@ const formatDate = () => {
   return 'T' + day + ' ' + date.padStart(2, '0') + '.' + month.padStart(2, '0')
 }
 
+interface Props{
+  tasks: TaskType[]
+}
 
-const Main = () => {
+const Main = (props: Props) => {
 
   const [value , setValue] = useState(0)
 
@@ -138,6 +143,12 @@ const Main = () => {
               {formatDate()}
             </StyledTodayText>
           </StyledToday>
+
+          {
+            props.tasks.map((task: TaskType)=>{
+              <TaskItem task={task}/>
+            })
+          }
           <StyledProgressWrapper>
             < ProgressBar height={20} width={80} percent={value} />
           </StyledProgressWrapper>

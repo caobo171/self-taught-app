@@ -20,14 +20,19 @@ const StyledLinearGradient = styled(LinearGradient)`
   justify-content: space-between;
   align-items: center;
 `
-const Settings = () => {
+
+interface Props{
+  finishCreateTaskHandle: ()=>void
+}
+
+const Settings = (props: Props) => {
 
 
     return <StyledSafeAreaView>
         <StyledLinearGradient colors={['#24e0be', '#45b570', '#52a156', '#5fde66']}
         >   
 
-        <CreatePlan/>
+        <CreatePlan finishCreateTaskHandle = {props.finishCreateTaskHandle}/>
         
 
 

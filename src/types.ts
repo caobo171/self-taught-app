@@ -9,3 +9,13 @@ export interface ImagePickerResponse{
     
 
 }
+
+export interface TaskType{
+    duration : number,
+    description: string,
+    name: string,
+    complete: number,
+    award: string[] , // image uri
+    punish: string[] ,  // image uri
+    id: string
+}

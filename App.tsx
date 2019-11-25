@@ -6,14 +6,16 @@
  * @flow
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View, Dimensions, PanResponder, Animated, Text,
 } from 'react-native';
 
 import Settings from './src/pages/settings/Settings'
 import Main from './src/pages/main'
-
+import { TaskType } from './src/types';
+import useEffectOnce from 'react-use/lib/useEffectOnce';
+import storage from './src/services/storage'
 
 const HEIGHT = Dimensions.get('window').height;
 const WIDTH = Dimensions.get('window').width;
@@ -26,6 +28,17 @@ const ANIMATION_THRESHOLD = 120
 const App = () => {
 
   const [tab, setTab] = useState<'base'|'settings'>('base')
+
+  const [tasks, setTasks ] = useState<TaskType[]>([])
+
+  const [update, forceUpdate] = useState(false)
+
+  useEffect(()=>{
+    (async ()=>{
+      const resTasks = await storage.getListTask()
+      setTasks(resTasks)
+    })()
+  }, [update])
 
   let panResponder = PanResponder.create({
     onStartShouldSetPanResponder: (evt, getstureState) => true,
@@ -52,11 +65,26 @@ const App = () => {
       } else if ( (-gestureState.dx > ANIMATION_THRESHOLD || -gestureState.vx > 1 ) && tab === 'settings') {
         Animated.timing(position, {
           toValue: 0
-          , duration: ANIMATION_DURATION
+          , duration: ANIMATION_DURATION 
         }).start(()=>{
           setTab('base')
         })
-      } 
+      } else {
+        if(gestureState.dx <= ANIMATION_THRESHOLD && tab === 'base'){
+          Animated.timing(position, {
+            toValue: 0
+            , duration: ANIMATION_DURATION
+          })
+        }else {
+          Animated.timing(position, {
+            toValue: WIDTH
+            , duration: ANIMATION_DURATION
+          }).start(()=>{
+            setTab('settings')
+          })
+        }
+      }
+
     }
   })
 
@@ -73,7 +101,7 @@ const App = () => {
       width: '100%',
       position: 'relative',
     }}  {...panResponder.panHandlers}>
-      <Main/>
+      <Main tasks={tasks}/>
       <Animated.View style={{
         position: 'absolute',
         height: HEIGHT,
@@ -81,7 +109,9 @@ const App = () => {
         right: basePosition,
       }}>
 
-        <Settings/>
+        <Settings  finishCreateTaskHandle = {()=> {
+          forceUpdate(!update)
+        } }/>
 
       </Animated.View>
     </Animated.View >
