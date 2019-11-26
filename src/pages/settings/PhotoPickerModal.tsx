@@ -178,7 +178,7 @@ const PhotoPickerModal = React.memo((props: PhotoPickerModalProps) => {
 
     useEffectOnce(() => {
         (async () => {
-            requestPermission()
+            await requestPermission()
             await loadMoreImages()
             await loadMoreImages()
         })()

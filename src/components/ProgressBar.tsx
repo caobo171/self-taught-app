@@ -7,7 +7,6 @@ import styled from 'styled-components/native'
 
 const ProgressWrapper = styled(View)`
     height: 30px;
-    width: 80%;
     border-width: 4px;
     border-radius: 15px;
 
@@ -29,7 +28,9 @@ interface Props {
 }
 
 const ProgressBar = (props: Props) => {
-    return <ProgressWrapper>
+    return <ProgressWrapper style={{
+        width: `${props.width}%`
+    }}>
 
         <ProgressGradient
         start={{x: 0, y: 0}} end={{x: 1, y: 1}}

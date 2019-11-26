@@ -8,7 +8,7 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import {
-  View, Dimensions, PanResponder, Animated, Text,
+  View, Dimensions, PanResponder, Animated, Text, Easing,
 } from 'react-native';
 
 import Settings from './src/pages/settings/Settings'
@@ -98,6 +98,15 @@ const App = () => {
     outputRange: [WIDTH, 0]
   })
 
+  const comebackBaseScreen = ()=>{
+    Animated.timing(position,{
+      toValue: 0
+      ,duration: ANIMATION_DURATION
+    }).start(()=>{
+      setTab('base')
+    })
+  }
+
 
   return (
 
@@ -118,7 +127,7 @@ const App = () => {
           right: basePosition,
         }}>
 
-          <Settings setTasks={setTasks} />
+          <Settings setTasks={setTasks} comebackBaseScreen = {comebackBaseScreen}/>
 
         </Animated.View>
       </Animated.View>

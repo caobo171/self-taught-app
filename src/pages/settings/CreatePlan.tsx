@@ -87,7 +87,8 @@ const StyledAddText = styled(Text)`
 `
 
 interface Props {
-    setTasks: React.Dispatch<React.SetStateAction<TaskType[]>>
+    setTasks: React.Dispatch<React.SetStateAction<TaskType[]>>,
+    comebackBaseScreen: ()=>void 
 }
 
 
@@ -109,6 +110,7 @@ const CreatePlan = (props: Props) => {
     const reset = ()=>{
         setNameTask('')
         setDescription('')
+        setDuration('')
         setAwardUris([])
         setPunishUris([])
     }
@@ -126,7 +128,7 @@ const CreatePlan = (props: Props) => {
         const keys = Object.keys(task)
         for(let i = 0 ; i< keys.length ; i++){
             //@ts-ignore
-            if(task[keys[i]] === '' || task[keys[i]].length <= 0){
+            if(task[keys[i]] === '' || task[keys[i]].length <= 0 || Number.isNaN(Number(task[keys[i]]))) {
                 Alert.alert(`Please enter valild ${keys[i]}`);
                 return 
             }
@@ -141,8 +143,9 @@ const CreatePlan = (props: Props) => {
 
         storage.saveAllTask(listTask).then()
         Alert.alert('Task created successful !')
-
+        
         reset();
+        props.comebackBaseScreen()
 
 
     }

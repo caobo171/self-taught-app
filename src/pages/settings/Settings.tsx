@@ -22,7 +22,8 @@ const StyledLinearGradient = styled(LinearGradient)`
 `
 
 interface Props{
-  setTasks: React.Dispatch<React.SetStateAction<TaskType[]>>
+  setTasks: React.Dispatch<React.SetStateAction<TaskType[]>>,
+  comebackBaseScreen: ()=> void
 }
 
 const Settings = (props: Props) => {
@@ -32,7 +33,7 @@ const Settings = (props: Props) => {
         <StyledLinearGradient colors={['#24e0be', '#45b570', '#52a156', '#5fde66']}
         >   
 
-        <CreatePlan setTasks = {props.setTasks}/>
+        <CreatePlan setTasks = {props.setTasks} comebackBaseScreen = {props.comebackBaseScreen} />
         
 
 
