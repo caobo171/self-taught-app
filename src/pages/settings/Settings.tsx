@@ -6,7 +6,7 @@ import LinearGradient from 'react-native-linear-gradient';
 //@ts-ignore
 import styled from 'styled-components/native'
 import CreatePlan from './CreatePlan';
-
+import {TaskType } from '../../types'
 
 const StyledSafeAreaView = styled(SafeAreaView)`
   width: 100%;
@@ -22,7 +22,7 @@ const StyledLinearGradient = styled(LinearGradient)`
 `
 
 interface Props{
-  finishCreateTaskHandle: ()=>void
+  setTasks: React.Dispatch<React.SetStateAction<TaskType[]>>
 }
 
 const Settings = (props: Props) => {
@@ -32,7 +32,7 @@ const Settings = (props: Props) => {
         <StyledLinearGradient colors={['#24e0be', '#45b570', '#52a156', '#5fde66']}
         >   
 
-        <CreatePlan finishCreateTaskHandle = {props.finishCreateTaskHandle}/>
+        <CreatePlan setTasks = {props.setTasks}/>
         
 
 

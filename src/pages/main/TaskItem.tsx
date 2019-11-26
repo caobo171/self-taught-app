@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext, useState } from 'react'
 import { TaskType } from 'src/types'
 
 //@ts-ignore
@@ -6,6 +6,10 @@ import styled from 'styled-components/native'
 import { View, Text, TouchableOpacity } from 'react-native'
 import ProgressBar from '../../components/ProgressBar'
 import ImageGroup from './ImageGroup'
+import { TaskContext } from '../../../App'
+import storage from '../../services/storage'
+
+import Modal from 'react-native-modal'
 
 const StyledProgressWrapper = styled(View)`
   width: 100%;
@@ -26,14 +30,11 @@ const StyledTaskName = styled.Text`
 const ImageGroupWrapper = styled.View`
   flex-direction : row;
   justify-content: space-between;
-  width: 80%;
+  width: 90%;
   align-items: center;
+  margin-left: auto;
+  margin-right: auto;
 `
-
-const ActionGroup = styled.View`
-  flex-direction: row;
-`
-
 const StyledAddButton = styled(TouchableOpacity)`
   border-width: 6px;
   border-radius: 24px;
@@ -75,21 +76,49 @@ const StyledGroupButton = styled(View)`
 
 `
 
+const StyledProgressText = styled.Text`
+  color: rgba(255,255,255,0.7);
+  font-weight: bold;
+  font-size: 12px;
+`
+
 
 
 interface Props {
-  task: TaskType
+  task: TaskType,
+  setTasks: React.Dispatch<React.SetStateAction<TaskType[]>>
 }
 
 
 const TaskItem = (props: Props) => {
 
-  const badClickHandle = ()=>{
+  const [isVisible, setIsVisble] = useState(false)
 
+  const { tasks } = useContext(TaskContext)
+
+  console.log('check tasks', tasks)
+  const badClickHandle = async () => {
+    let savedTasks = [...tasks]
+
+    const findIndex = savedTasks.findIndex(e => e.id === props.task.id)
+
+    savedTasks[findIndex].complete = Math.max(savedTasks[findIndex].complete - 1, 0)
+
+    props.setTasks(savedTasks)
+    await storage.saveAllTask(savedTasks);
   }
 
-  const okClickHandle =()=>{
-    
+  const okClickHandle = async () => {
+    let savedTasks = [...tasks]
+
+
+    const findIndex = savedTasks.findIndex(e => e.id === props.task.id)
+
+    savedTasks[findIndex].complete = Math.min(savedTasks[findIndex].complete + 1, savedTasks[findIndex].duration)
+    props.setTasks(savedTasks)
+    await storage.saveAllTask(savedTasks)
+
+    setIsVisble(true)
   }
 
 
@@ -97,20 +126,32 @@ const TaskItem = (props: Props) => {
     <StyledProgressWrapper>
       <ImageGroupWrapper>
         <StyledTaskName>{props.task.name}</StyledTaskName>
-        <ImageGroup images={props.task.punish} />
         <ImageGroup images={props.task.award} />
       </ImageGroupWrapper>
-      <ProgressBar height={20} width={80} percent={props.task.complete} />
+      <ProgressBar height={20} width={80} percent={props.task.complete / props.task.duration * 100} />
 
       <StyledGroupButton>
         <StyledDeleteButton onPress={badClickHandle}>
           <StyledBadText>Bad</StyledBadText>
         </StyledDeleteButton>
-
+        <StyledProgressText>
+          {props.task.complete} {'/'} {props.task.duration}
+        </StyledProgressText>
         <StyledAddButton onPress={okClickHandle}>
           <StyledOKText>OK</StyledOKText>
         </StyledAddButton>
       </StyledGroupButton>
+
+
+      <Modal
+        isVisible={isVisible}
+        onSwipeComplete={()=> setIsVisble(!isVisible)}
+        swipeDirection="left"
+      >
+        <View style={{ flex: 1 }}>
+          <Text>I am the modal content!</Text>
+        </View>
+      </Modal>
 
 
     </StyledProgressWrapper>

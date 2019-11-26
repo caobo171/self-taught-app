@@ -6,12 +6,11 @@
  * @flow
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useContext } from 'react';
 import {
   SafeAreaView,
   View,
   Text,
-  TouchableOpacity,
   ScrollView,
   Dimensions,
 } from 'react-native';
@@ -22,60 +21,19 @@ import LinearGradient from 'react-native-linear-gradient';
 
 //@ts-ignore
 import styled from 'styled-components/native'
-
-import ProgressBar from '../../components/ProgressBar'
 import { TaskType } from 'src/types';
 import TaskItem from './TaskItem';
+import {TaskContext} from '../../../App'
 
 
 const HEIGHT = Dimensions.get('window').height
-const StyledAddButton = styled(TouchableOpacity)`
-  border-width: 10px;
-  border-radius: 60px;
-  border-color: rgba(255,255,255,0.3) ; 
-  align-items: center;
-  justify-content: center;
-  height: 120px; 
-  width: 120px;
 
-  margin-left: 40px;
-`
-
-const StyledOKText = styled(Text)`
-  color: rgba(255,255,255,0.7);
-  font-weight: 900;
-  font-size: 28px;
-`
-
-const StyledBadText = styled(Text)`
-  color: rgba(255,255,255,0.7);
-  font-weight: bold;
-  font-size: 20px;
-`
-
-const StyledDeleteButton = styled(TouchableOpacity)`
-  border-width: 10px;
-  border-radius: 40px;
-  border-color: rgba(255,255,255,0.3) ; 
-  align-items: center;
-  justify-content: center;
-  height: 80px; 
-  width: 80px;
-`
 
 const StyledSafeAreaView = styled(SafeAreaView)`
   width: 100%;
   height: 100%;
 
 `
-
-const StyledGroupButton = styled(View)`
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 60px;
-`
-
 const StyledToday = styled(View)`
   margin-top: 80px;
 `
@@ -93,11 +51,6 @@ const StyledLinearGradient = styled(LinearGradient)`
   align-items: center;
 `
 
-const StyledProgressWrapper = styled(View)`
-  width: 100%;
-  justify-content: center;
-  align-items: center;
-`
 const StyledScrollView = styled(ScrollView)`
   height: ${HEIGHT* 0.6};
   margin-top: 20px;
@@ -114,27 +67,17 @@ const formatDate = () => {
   return 'T' + day + ' ' + date.padStart(2, '0') + '.' + month.padStart(2, '0')
 }
 
-interface Props {
-  tasks: TaskType[]
+
+interface Props{
+  setTasks: any
 }
 
 const Main = (props: Props) => {
 
-  console.log('check tasks', props.tasks)
-
-  const [value, setValue] = useState(0)
-
-  const [total, setTotal] = useState(100)
+  const {tasks } = useContext(TaskContext)
 
 
-  const badClickHandle = useCallback(() => {
-    setValue(Math.max(0, value - 1))
-  }, [value])
 
-
-  const okClickHandle = useCallback(() => {
-    setValue(Math.min(total, value + 1))
-  }, [value])
   return (
     <>
       <StyledSafeAreaView>
@@ -154,8 +97,8 @@ const Main = (props: Props) => {
 
           <StyledScrollView>
             {
-              props.tasks.map((task: TaskType) => {
-                return <TaskItem task={task} key={task.id} />
+              tasks.filter(e=> e.duration > e.complete).map((task: TaskType) => {
+                return <TaskItem task={task} key={task.id} setTasks= {props.setTasks}/>
               })
             }
           </StyledScrollView>

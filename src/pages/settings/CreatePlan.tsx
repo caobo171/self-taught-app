@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 
 //@ts-ignore
 import styled from 'styled-components/native'
@@ -8,6 +8,7 @@ import { TouchableOpacity, Text, Alert } from 'react-native';
 import storage from '../../services/storage';
 import uuid from 'uuid';
 import ImageGroup from '../main/ImageGroup';
+import { TaskContext } from '../../../App';
 
 const StyledWrapper = styled.View`
     width: 100%;
@@ -86,7 +87,7 @@ const StyledAddText = styled(Text)`
 `
 
 interface Props {
-    finishCreateTaskHandle: () => void
+    setTasks: React.Dispatch<React.SetStateAction<TaskType[]>>
 }
 
 
@@ -94,12 +95,23 @@ const CreatePlan = (props: Props) => {
 
     const [isVisible, setIsVisible] = useState(false)
 
+    const [isAwardVisible, setAwardVisible] = useState(false)
+
     const [nameTask, setNameTask] = useState('')
     const [description, setDescription] = useState('')
     const [duration, setDuration] = useState('')
     const [awardUris, setAwardUris] = useState<string[]>([])
     const [punishUris, setPunishUris] = useState<string[]>([])
 
+    const { tasks } = useContext(TaskContext)
+
+
+    const reset = ()=>{
+        setNameTask('')
+        setDescription('')
+        setAwardUris([])
+        setPunishUris([])
+    }
     const createTaskHandle = () => {
         const task: TaskType = {
             id: uuid(),
@@ -111,10 +123,28 @@ const CreatePlan = (props: Props) => {
             punish: punishUris,
         }
 
-        storage.saveTask(task)
+        const keys = Object.keys(task)
+        for(let i = 0 ; i< keys.length ; i++){
+            //@ts-ignore
+            if(task[keys[i]] === '' || task[keys[i]].length <= 0){
+                Alert.alert(`Please enter valild ${keys[i]}`);
+                return 
+            }
+        }
+
+
+
+        let listTask = [...tasks]
+        listTask.push(task)
+        props.setTasks(listTask)
+
+
+        storage.saveAllTask(listTask).then()
         Alert.alert('Task created successful !')
 
-        props.finishCreateTaskHandle()
+        reset();
+
+
     }
     return (
         <StyledWrapper>
@@ -152,7 +182,7 @@ const CreatePlan = (props: Props) => {
 
                 <ImageGroup images={awardUris} />
                 <StyleImagePickButton onPress={() => {
-                    setIsVisible(true)
+                    setAwardVisible(true)
                 }}>
                     <StyledText >
                         Pick Awards Image
@@ -162,13 +192,13 @@ const CreatePlan = (props: Props) => {
                 <PhotoPickerModal
                     endingPickImageHandle={(results: ImagePickerResponse[]) => {
                         setAwardUris(results.map(e => e.uri))
-                        setIsVisible(false)
+                        setAwardVisible(false)
                     }}
 
-                    isVisible={isVisible}
+                    isVisible={isAwardVisible}
                     onCancelHandle={() => {
 
-                        setIsVisible(false)
+                        setAwardVisible(false)
                     }}
 
                 />

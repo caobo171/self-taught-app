@@ -37,6 +37,10 @@ class Storage  {
         return savedTasks
     }
 
+    async saveAllTask(task: TaskType[]){
+        return await AsyncStorage.setItem('@tasks', JSON.stringify(task))
+    }
+
 
     async updateTask(updateTask : TaskType){
         const res = await AsyncStorage.getItem('@tasks')

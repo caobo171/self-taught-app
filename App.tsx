@@ -14,7 +14,6 @@ import {
 import Settings from './src/pages/settings/Settings'
 import Main from './src/pages/main'
 import { TaskType } from './src/types';
-import useEffectOnce from 'react-use/lib/useEffectOnce';
 import storage from './src/services/storage'
 
 const HEIGHT = Dimensions.get('window').height;
@@ -25,16 +24,21 @@ let position = new Animated.Value(-WIDTH);
 const ANIMATION_DURATION = 200
 const ANIMATION_THRESHOLD = 120
 
+
+export const TaskContext = React.createContext<{tasks:TaskType[]}>({
+  tasks: []
+})
+
 const App = () => {
 
-  const [tab, setTab] = useState<'base'|'settings'>('base')
+  const [tab, setTab] = useState<'base' | 'settings'>('base')
 
-  const [tasks, setTasks ] = useState<TaskType[]>([])
+  const [tasks, setTasks] = useState<TaskType[]>([])
 
   const [update, forceUpdate] = useState(false)
 
-  useEffect(()=>{
-    (async ()=>{
+  useEffect(() => {
+    (async () => {
       const resTasks = await storage.getListTask()
       setTasks(resTasks)
     })()
@@ -44,42 +48,42 @@ const App = () => {
     onStartShouldSetPanResponder: (evt, getstureState) => true,
     onPanResponderMove: (evt, gestureState) => {
 
-       
-      if(gestureState.dx > 0 && tab === 'base' ){
+
+      if (gestureState.dx > 0 && tab === 'base') {
         position.setValue(gestureState.dx)
       }
 
-      else if (gestureState.dx < 0 && tab === 'settings'){
+      else if (gestureState.dx < 0 && tab === 'settings') {
         position.setValue(WIDTH + gestureState.dx)
       }
     },
 
     onPanResponderRelease: (evt, gestureState) => {
-      if ( (gestureState.dx > ANIMATION_THRESHOLD || gestureState.vx > 1 ) && tab === 'base' ) {
+      if ((gestureState.dx > ANIMATION_THRESHOLD || gestureState.vx > 1) && tab === 'base') {
         Animated.timing(position, {
           toValue: WIDTH
           , duration: ANIMATION_DURATION
-        }).start(()=>{
+        }).start(() => {
           setTab('settings')
         })
-      } else if ( (-gestureState.dx > ANIMATION_THRESHOLD || -gestureState.vx > 1 ) && tab === 'settings') {
+      } else if ((-gestureState.dx > ANIMATION_THRESHOLD || -gestureState.vx > 1) && tab === 'settings') {
         Animated.timing(position, {
           toValue: 0
-          , duration: ANIMATION_DURATION 
-        }).start(()=>{
+          , duration: ANIMATION_DURATION
+        }).start(() => {
           setTab('base')
         })
       } else {
-        if(gestureState.dx <= ANIMATION_THRESHOLD && tab === 'base'){
+        if (gestureState.dx <= ANIMATION_THRESHOLD && tab === 'base') {
           Animated.timing(position, {
             toValue: 0
             , duration: ANIMATION_DURATION
           })
-        }else {
+        } else {
           Animated.timing(position, {
             toValue: WIDTH
             , duration: ANIMATION_DURATION
-          }).start(()=>{
+          }).start(() => {
             setTab('settings')
           })
         }
@@ -91,30 +95,35 @@ const App = () => {
 
   const basePosition = position.interpolate({
     inputRange: [0, WIDTH],
-    outputRange : [WIDTH, 0]
+    outputRange: [WIDTH, 0]
   })
 
 
   return (
-    <Animated.View style={{
-      height: '100%',
-      width: '100%',
-      position: 'relative',
-    }}  {...panResponder.panHandlers}>
-      <Main tasks={tasks}/>
+
+    <TaskContext.Provider value = {{tasks}}>
       <Animated.View style={{
-        position: 'absolute',
-        height: HEIGHT,
-        width: WIDTH,
-        right: basePosition,
-      }}>
+        height: '100%',
+        width: '100%',
+        position: 'relative',
+      }}  {...panResponder.panHandlers}>
+        <Main setTasks = {(tasks: TaskType[])=>{
+          console.log('check tasks', tasks)
+          setTasks(tasks)
+        }}/>
+        <Animated.View style={{
+          position: 'absolute',
+          height: HEIGHT,
+          width: WIDTH,
+          right: basePosition,
+        }}>
 
-        <Settings  finishCreateTaskHandle = {()=> {
-          forceUpdate(!update)
-        } }/>
+          <Settings setTasks={setTasks} />
 
+        </Animated.View>
       </Animated.View>
-    </Animated.View >
+    </TaskContext.Provider>
+
 
   )
 
