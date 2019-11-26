@@ -12,6 +12,8 @@ import {
   View,
   Text,
   TouchableOpacity,
+  ScrollView,
+  Dimensions,
 } from 'react-native';
 
 import AsynStorage from '@react-native-community/async-storage'
@@ -26,6 +28,7 @@ import { TaskType } from 'src/types';
 import TaskItem from './TaskItem';
 
 
+const HEIGHT = Dimensions.get('window').height
 const StyledAddButton = styled(TouchableOpacity)`
   border-width: 10px;
   border-radius: 60px;
@@ -95,38 +98,43 @@ const StyledProgressWrapper = styled(View)`
   justify-content: center;
   align-items: center;
 `
-
+const StyledScrollView = styled(ScrollView)`
+  height: ${HEIGHT* 0.6};
+  margin-top: 20px;
+`
 
 const formatDate = () => {
   const current = new Date()
 
   const date = current.getDate().toString();
-  let  day = (current.getDay() + 1).toString();
-  if(day === '8') { day = 'CN'}
+  let day = (current.getDay() + 1).toString();
+  if (day === '8') { day = 'CN' }
   const month = current.getMonth().toString();
 
   return 'T' + day + ' ' + date.padStart(2, '0') + '.' + month.padStart(2, '0')
 }
 
-interface Props{
+interface Props {
   tasks: TaskType[]
 }
 
 const Main = (props: Props) => {
 
-  const [value , setValue] = useState(0)
+  console.log('check tasks', props.tasks)
 
-  const [total , setTotal ] = useState(100)
+  const [value, setValue] = useState(0)
 
-
-  const badClickHandle = useCallback(()=>{
-    setValue( Math.max( 0 , value -  1))
-  } , [value])
+  const [total, setTotal] = useState(100)
 
 
-  const okClickHandle = useCallback(()=>{
-    setValue( Math.min(total, value + 1))
-  } , [value])
+  const badClickHandle = useCallback(() => {
+    setValue(Math.max(0, value - 1))
+  }, [value])
+
+
+  const okClickHandle = useCallback(() => {
+    setValue(Math.min(total, value + 1))
+  }, [value])
   return (
     <>
       <StyledSafeAreaView>
@@ -144,24 +152,14 @@ const Main = (props: Props) => {
             </StyledTodayText>
           </StyledToday>
 
-          {
-            props.tasks.map((task: TaskType)=>{
-              <TaskItem task={task}/>
-            })
-          }
-          <StyledProgressWrapper>
-            < ProgressBar height={20} width={80} percent={value} />
-          </StyledProgressWrapper>
+          <StyledScrollView>
+            {
+              props.tasks.map((task: TaskType) => {
+                return <TaskItem task={task} key={task.id} />
+              })
+            }
+          </StyledScrollView>
 
-          <StyledGroupButton>
-            <StyledDeleteButton onPress = {badClickHandle}>
-              <StyledBadText>Bad</StyledBadText>
-            </StyledDeleteButton>
-
-            <StyledAddButton onPress={okClickHandle}>
-              <StyledOKText>OK</StyledOKText>
-            </StyledAddButton>
-          </StyledGroupButton>
 
         </StyledLinearGradient>
 

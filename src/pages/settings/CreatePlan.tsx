@@ -5,8 +5,9 @@ import styled from 'styled-components/native'
 import PhotoPickerModal from './PhotoPickerModal';
 import { ImagePickerResponse, TaskType } from '../../types'
 import { TouchableOpacity, Text, Alert } from 'react-native';
-import storage from 'src/services/storage';
+import storage from '../../services/storage';
 import uuid from 'uuid';
+import ImageGroup from '../main/ImageGroup';
 
 const StyledWrapper = styled.View`
     width: 100%;
@@ -84,8 +85,8 @@ const StyledAddText = styled(Text)`
   font-size: 24px;
 `
 
-interface Props{
-    finishCreateTaskHandle : ()=>void
+interface Props {
+    finishCreateTaskHandle: () => void
 }
 
 
@@ -99,8 +100,8 @@ const CreatePlan = (props: Props) => {
     const [awardUris, setAwardUris] = useState<string[]>([])
     const [punishUris, setPunishUris] = useState<string[]>([])
 
-    const createTaskHandle = ()=>{
-        const task: TaskType  = {
+    const createTaskHandle = () => {
+        const task: TaskType = {
             id: uuid(),
             name: nameTask,
             description: description,
@@ -108,9 +109,9 @@ const CreatePlan = (props: Props) => {
             complete: 0,
             award: awardUris,
             punish: punishUris,
-        } 
+        }
 
-        storage.saveTask(task)  
+        storage.saveTask(task)
         Alert.alert('Task created successful !')
 
         props.finishCreateTaskHandle()
@@ -124,21 +125,24 @@ const CreatePlan = (props: Props) => {
                 <StyledFormControl>
                     <StyledInput placeholder="Your Plan Name ..."
                         value={nameTask}
-                        onTextChange={(value: string) => setNameTask(value)}
+                        onChangeText={(value: string) => {
+                            setNameTask(value)
+                            console.log('check value', value)
+                        }}
                     ></StyledInput>
                 </StyledFormControl>
 
                 <StyledFormControl>
                     <StyledInput placeholder="Your Plan Description ..."
                         value={description}
-                        onTextChange={(value: string) => setDescription(value)}
+                        onChangeText={(value: string) => setDescription(value)}
                     ></StyledInput>
                 </StyledFormControl>
 
                 <StyledFormControl>
                     <StyledInput placeholder="Your Plan Duration ..."
                         value={duration}
-                        onTextChange={(value: string) => setDuration(value)}
+                        onChangeText={(value: string) => setDuration(value)}
                     ></StyledInput>
                 </StyledFormControl>
 
@@ -146,6 +150,7 @@ const CreatePlan = (props: Props) => {
                     Image picker 
                 */}
 
+                <ImageGroup images={awardUris} />
                 <StyleImagePickButton onPress={() => {
                     setIsVisible(true)
                 }}>
@@ -172,6 +177,8 @@ const CreatePlan = (props: Props) => {
                     Image picker 
                 */}
 
+                <ImageGroup images={punishUris} />
+
                 <StyleImagePickButton onPress={() => {
                     setIsVisible(true)
                 }}>
@@ -195,7 +202,7 @@ const CreatePlan = (props: Props) => {
                 />
 
 
-                <StyledAddButton onPress = {createTaskHandle}>
+                <StyledAddButton onPress={createTaskHandle}>
                     <StyledAddText>Create Task</StyledAddText>
                 </StyledAddButton>
 
