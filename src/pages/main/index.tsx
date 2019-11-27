@@ -15,7 +15,6 @@ import {
   Dimensions,
 } from 'react-native';
 
-import AsynStorage from '@react-native-community/async-storage'
 
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -24,6 +23,7 @@ import styled from 'styled-components/native'
 import { TaskType } from 'src/types';
 import TaskItem from './TaskItem';
 import {TaskContext} from '../../../App'
+import NoTask from '../../components/NoTask';
 
 
 const HEIGHT = Dimensions.get('window').height
@@ -35,13 +35,21 @@ const StyledSafeAreaView = styled(SafeAreaView)`
 
 `
 const StyledToday = styled(View)`
-  margin-top: 80px;
+  margin-top: 60px;
 `
 
 const StyledTodayText = styled(Text)`
   color: rgba(255,255,255,0.7);
   font-weight: bold;
-  font-size: 14px;
+  font-size: 26px;
+  text-align: center;
+`
+
+const StyledDayText =styled.Text`
+  color: rgba(255,255,255,0.7);
+  font-weight: bold;
+  font-size: 18px;
+  text-align:  center;
 `
 
 const StyledLinearGradient = styled(LinearGradient)`
@@ -69,14 +77,15 @@ const formatDate = () => {
 
 
 interface Props{
-  setTasks: any
+  setTasks: any,
+  comeToSettings:()=>void
 }
 
 const Main = (props: Props) => {
 
   const {tasks } = useContext(TaskContext)
 
-  console.log('check tasks ')
+  const filteredTask = tasks.filter(e=> e.duration > e.complete)
 
 
   return (
@@ -91,19 +100,26 @@ const Main = (props: Props) => {
               {' TODAY'}
             </StyledTodayText>
 
-            <StyledTodayText>
+            <StyledDayText>
               {formatDate()}
-            </StyledTodayText>
+            </StyledDayText>
           </StyledToday>
 
           <StyledScrollView>
             {
-              tasks.filter(e=> e.duration > e.complete).map((task: TaskType) => {
+              filteredTask.filter(e=> e.duration > e.complete).map((task: TaskType) => {
                 return <TaskItem task={task} key={task.id} setTasks= {props.setTasks}/>
               })
             }
           </StyledScrollView>
 
+          {
+            filteredTask.length <= 0 && (
+              <NoTask
+                comeToSettings={props.comeToSettings}
+              />
+            )
+          }
 
         </StyledLinearGradient>
 

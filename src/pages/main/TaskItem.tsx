@@ -3,7 +3,7 @@ import { TaskType } from 'src/types'
 
 //@ts-ignore
 import styled from 'styled-components/native'
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity, Alert } from 'react-native'
 import ProgressBar from '../../components/ProgressBar'
 import ImageGroup from './ImageGroup'
 import { TaskContext } from '../../../App'
@@ -17,8 +17,11 @@ const StyledProgressWrapper = styled(View)`
   justify-content: center;
   align-items: center;
 
-  margin-left: auto;
   margin-right: auto;
+  margin-left: auto;
+
+  margin-bottom: 24px;
+
 `
 
 const StyledTaskName = styled.Text`
@@ -74,7 +77,7 @@ const StyledGroupButton = styled(View)`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  margin-top: 10px;
+  margin-top: 6px;
   width: 90%;
 `
 
@@ -98,33 +101,51 @@ const TaskItem = (props: Props) => {
 
   const [ isBadVisible , setIsBadVisible ] = useState(false)
 
+  const [updatedTasks, setUpdatedTask ] = useState<TaskType[]>([])
+
   const { tasks } = useContext(TaskContext)
 
   const badClickHandle = async () => {
+
+    const canUpdate  = await storage.canUpdateStatus(props.task)
+    if(!canUpdate){
+      Alert.alert('Oop !! ', `You 've reviewed today !!`);
+      return 
+    }
     let savedTasks = [...tasks]
 
     const findIndex = savedTasks.findIndex(e => e.id === props.task.id)
 
     savedTasks[findIndex].complete = Math.max(savedTasks[findIndex].complete - 1, 0)
 
-    props.setTasks(savedTasks)
+    
     await storage.saveAllTask(savedTasks);
 
+    setUpdatedTask(savedTasks)
     setIsBadVisible(true)
   }
 
   const okClickHandle = async () => {
+    const canUpdate  = await storage.canUpdateStatus(props.task)
+    if(!canUpdate){
+      Alert.alert('Oop !! ', `You 've reviewed today !!`);
+      return 
+    }
     let savedTasks = [...tasks]
 
 
     const findIndex = savedTasks.findIndex(e => e.id === props.task.id)
 
-    savedTasks[findIndex].complete = Math.min(savedTasks[findIndex].complete + 1, savedTasks[findIndex].duration)
-    props.setTasks(savedTasks)
+    const  updatedValue = Math.min(savedTasks[findIndex].complete + 1, savedTasks[findIndex].duration)
+    savedTasks[findIndex].complete = updatedValue
+    
     await storage.saveAllTask(savedTasks)
 
     if(savedTasks[findIndex].complete === savedTasks[findIndex].duration) {
+      setUpdatedTask(savedTasks)
       setIsCompleteVisble(true)
+    }else{
+      props.setTasks(savedTasks)
     }
     
   }
@@ -132,6 +153,7 @@ const TaskItem = (props: Props) => {
   const setIsVisbleHandle = useCallback(()=>{
 
     setIsCompleteVisble(false)
+    props.setTasks(updatedTasks)
 
   }, [isCompleteVisible])
 

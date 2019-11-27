@@ -192,6 +192,7 @@ const CreatePlan = (props: Props) => {
                 <StyledFormControl>
                     <StyledInput placeholder="Your Plan Duration ..."
                         value={duration}
+                        keyboardType={'number-pad'}
                         onChangeText={(value: string) => setDuration(value)}
                     ></StyledInput>
                 </StyledFormControl>

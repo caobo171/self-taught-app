@@ -15,6 +15,9 @@ import Settings from './src/pages/settings/Settings'
 import Main from './src/pages/main'
 import { TaskType } from './src/types';
 import storage from './src/services/storage'
+import useEffectOnce from 'react-use/lib/useEffectOnce';
+
+import LocalNotification from './notification'
 
 const HEIGHT = Dimensions.get('window').height;
 const WIDTH = Dimensions.get('window').width;
@@ -36,6 +39,10 @@ const App = () => {
   const [tasks, setTasks] = useState<TaskType[]>([])
 
   const [update, forceUpdate] = useState(false)
+
+  // useEffectOnce(()=>{
+  //   LocalNotification.register()
+  // })
 
   useEffect(() => {
     (async () => {
@@ -60,32 +67,18 @@ const App = () => {
 
     onPanResponderRelease: (evt, gestureState) => {
       if ((gestureState.dx > ANIMATION_THRESHOLD || gestureState.vx > 1) && tab === 'base') {
-        Animated.timing(position, {
-          toValue: WIDTH
-          , duration: ANIMATION_DURATION
-        }).start(() => {
-          setTab('settings')
-        })
+          cometoSettingsScreen()
       } else if ((-gestureState.dx > ANIMATION_THRESHOLD || -gestureState.vx > 1) && tab === 'settings') {
-        Animated.timing(position, {
-          toValue: 0
-          , duration: ANIMATION_DURATION
-        }).start(() => {
-          setTab('base')
-        })
+       
+          comebackBaseScreen()
       } else {
-        if (gestureState.dx <= ANIMATION_THRESHOLD && tab === 'base') {
-          Animated.timing(position, {
-            toValue: 0
-            , duration: ANIMATION_DURATION
-          })
+        console.log('check 2')
+        if (tab === 'base') {
+          console.log('check 3')
+          
+          comebackBaseScreen()
         } else {
-          Animated.timing(position, {
-            toValue: WIDTH
-            , duration: ANIMATION_DURATION
-          }).start(() => {
-            setTab('settings')
-          })
+          cometoSettingsScreen()
         }
       }
 
@@ -107,6 +100,15 @@ const App = () => {
     })
   }
 
+  const cometoSettingsScreen = ()=>{
+    Animated.timing(position,{
+      toValue: WIDTH
+      ,duration: ANIMATION_DURATION
+    }).start(()=>{
+      setTab('settings')
+    })
+  }
+
 
   return (
 
@@ -117,9 +119,11 @@ const App = () => {
         position: 'relative',
       }}  {...panResponder.panHandlers}>
         <Main setTasks = {(tasks: TaskType[])=>{
-          console.log('check tasks', tasks)
           setTasks(tasks)
-        }}/>
+        }}
+
+        comeToSettings={cometoSettingsScreen}
+        />
         <Animated.View style={{
           position: 'absolute',
           height: HEIGHT,

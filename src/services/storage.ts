@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-community/async-storage'
 import { TaskType } from 'src/types';
 
 import  uuid from 'uuid'
+import { Alert } from 'react-native';
 
 interface Storage{
     tasks: TaskType[]
@@ -53,6 +54,25 @@ class Storage  {
         await AsyncStorage.setItem('@tasks', JSON.stringify(savedTasks))
 
         return this.tasks
+    }
+
+    canUpdateStatus = async (task: TaskType)=>{
+        const res = await AsyncStorage.getItem('@lastupdate-'+ task.id)
+
+        if(res){
+            const date = new Date(Number(res))
+            const currentDate = new Date()
+
+            if(date.getMonth()=== currentDate.getMonth() 
+            && date.getDate() === currentDate.getDate() 
+            && date.getFullYear() === currentDate.getFullYear()){
+                Alert.alert('Oop !! ', `You 've reviewed today !!`);
+                return false
+            }
+        }
+
+        await AsyncStorage.setItem('@lastupdate-'+ task.id, (new Date()).getTime().toString())
+        return true 
     }
 }
 
