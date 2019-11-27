@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useCallback } from 'react'
 import { TaskType } from 'src/types'
 
 //@ts-ignore
@@ -8,20 +8,23 @@ import ProgressBar from '../../components/ProgressBar'
 import ImageGroup from './ImageGroup'
 import { TaskContext } from '../../../App'
 import storage from '../../services/storage'
+import CompleteModal from '../../components/CompleteModal'
+import BadModal from '../../components/BadModal'
 
-import Modal from 'react-native-modal'
 
 const StyledProgressWrapper = styled(View)`
-  width: 100%;
+  width: 80%;
   justify-content: center;
   align-items: center;
+
+  margin-left: auto;
+  margin-right: auto;
 `
 
 const StyledTaskName = styled.Text`
-    width: 65%;
     font-size: 16px;
     text-transform: uppercase;
-    color: #525252;
+    color: rgba(255,255,255,0.7);
     font-weight: bold;
     letter-spacing: 1px;
     margin-bottom: 4px;
@@ -72,8 +75,7 @@ const StyledGroupButton = styled(View)`
   align-items: center;
   justify-content: space-between;
   margin-top: 10px;
-  width: 60%;
-
+  width: 90%;
 `
 
 const StyledProgressText = styled.Text`
@@ -92,11 +94,12 @@ interface Props {
 
 const TaskItem = (props: Props) => {
 
-  const [isVisible, setIsVisble] = useState(false)
+  const [isCompleteVisible, setIsCompleteVisble] = useState(false)
+
+  const [ isBadVisible , setIsBadVisible ] = useState(false)
 
   const { tasks } = useContext(TaskContext)
 
-  console.log('check tasks', tasks)
   const badClickHandle = async () => {
     let savedTasks = [...tasks]
 
@@ -106,6 +109,8 @@ const TaskItem = (props: Props) => {
 
     props.setTasks(savedTasks)
     await storage.saveAllTask(savedTasks);
+
+    setIsBadVisible(true)
   }
 
   const okClickHandle = async () => {
@@ -118,10 +123,22 @@ const TaskItem = (props: Props) => {
     props.setTasks(savedTasks)
     await storage.saveAllTask(savedTasks)
 
-    setIsVisble(true)
+    if(savedTasks[findIndex].complete === savedTasks[findIndex].duration) {
+      setIsCompleteVisble(true)
+    }
+    
   }
 
+  const setIsVisbleHandle = useCallback(()=>{
 
+    setIsCompleteVisble(false)
+
+  }, [isCompleteVisible])
+
+
+  const setIsBadVisibleHandle = useCallback(()=>{
+    setIsBadVisible(false)
+  }, [isBadVisible])
   return (
     <StyledProgressWrapper>
       <ImageGroupWrapper>
@@ -143,15 +160,17 @@ const TaskItem = (props: Props) => {
       </StyledGroupButton>
 
 
-      <Modal
-        isVisible={isVisible}
-        onSwipeComplete={()=> setIsVisble(!isVisible)}
-        swipeDirection="left"
-      >
-        <View style={{ flex: 1 }}>
-          <Text>I am the modal content!</Text>
-        </View>
-      </Modal>
+      <CompleteModal
+        isVisible={isCompleteVisible}
+        setIsVisible = {setIsVisbleHandle}
+        task = {props.task}
+      />
+
+      <BadModal
+        isVisible = {isBadVisible}
+        setIsVisible = {setIsBadVisibleHandle}
+        task = {props.task}
+      />
 
 
     </StyledProgressWrapper>

@@ -1,10 +1,13 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 //@ts-ignore
 import styled from 'styled-components/native'
 import FastImage from 'react-native-fast-image'
+import { Alert } from 'react-native'
+import { ImagePickerResponse } from 'src/types'
+import PhotoPickerModal from '../settings/PhotoPickerModal'
 
-const StyledWrapper = styled.View`
+const StyledWrapper = styled.TouchableOpacity`
     flex-direction: row;
 `
 
@@ -18,18 +21,46 @@ const StyledImage = styled(FastImage)`
 
 interface Props {
 
-    images: string[]
+    images: string[],
+    handleChangeImages? : (results: ImagePickerResponse[]) => void
 }
 const ImageGroup = (props: Props)=>{
 
-    console.log('check images', props.images)
+    const [images , setImages ] = useState<ImagePickerResponse[]>([])
+    const [isVisible , setIsVisible ]= useState(false)
+
+    const onPressHandle = ()=>{
+        Alert.alert('','Do you want to change these items ?',[
+            {
+                text:'Cancel',
+                onPress : ()=> {}
+            },
+            {
+                text: 'OK',
+                onPress: ()=>{
+                    setIsVisible(true)
+                }
+            }
+        ])
+    }
     return (
-        <StyledWrapper>
+        <StyledWrapper onPress = {onPressHandle}>
             {
                 props.images.map((imageUri: string)=>{
-                    return <StyledImage source= {{uri: imageUri}}/>
+                    return <StyledImage key={imageUri} source= {{uri: imageUri}}/>
                 })
             }
+
+            <PhotoPickerModal
+                endingPickImageHandle = {(results: ImagePickerResponse[])=>{
+                    setIsVisible(false)
+                    props.handleChangeImages && props.handleChangeImages(results)
+
+                }}
+                isVisible={isVisible }
+                onCancelHandle= {()=> setIsVisible(false)}
+                
+            />
         </StyledWrapper>
     )
 }

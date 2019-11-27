@@ -34,8 +34,6 @@ const Settings = (props: Props) => {
         >   
 
         <CreatePlan setTasks = {props.setTasks} comebackBaseScreen = {props.comebackBaseScreen} />
-        
-
 
         </StyledLinearGradient>
 

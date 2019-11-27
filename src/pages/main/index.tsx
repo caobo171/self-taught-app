@@ -76,6 +76,7 @@ const Main = (props: Props) => {
 
   const {tasks } = useContext(TaskContext)
 
+  console.log('check tasks ')
 
 
   return (

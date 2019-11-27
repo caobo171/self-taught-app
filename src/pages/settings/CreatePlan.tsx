@@ -4,7 +4,7 @@ import React, { useState, useContext } from 'react'
 import styled from 'styled-components/native'
 import PhotoPickerModal from './PhotoPickerModal';
 import { ImagePickerResponse, TaskType } from '../../types'
-import { TouchableOpacity, Text, Alert } from 'react-native';
+import { TouchableOpacity, Text, Alert, View } from 'react-native';
 import storage from '../../services/storage';
 import uuid from 'uuid';
 import ImageGroup from '../main/ImageGroup';
@@ -26,7 +26,7 @@ const StyledFormGroup = styled.View`
     width: 100%;
     justify-content: center;
     align-items: center;
-    margin-top: 40px;
+    margin-top: 32px;
 `
 
 
@@ -47,7 +47,7 @@ const StyledTitle = styled.Text`
     color: rgba(255,255,255,0.8);
     margin-top: 30px;
 `
-TouchableOpacity
+
 const StyleImagePickButton = styled.TouchableOpacity`
     width : 80%;
     border-width: 4px;
@@ -86,9 +86,21 @@ const StyledAddText = styled(Text)`
   font-size: 24px;
 `
 
+const StyledImageGroupWrapper = styled(View)`
+    flex-direction: row;
+    width: 80%
+    align-items: center;
+    justify-content: center;
+`
+
+const StyledTextDescription = styled.Text`
+    color: rgba(255,255,255,0.9);
+    margin-right: 8px;
+`
+
 interface Props {
     setTasks: React.Dispatch<React.SetStateAction<TaskType[]>>,
-    comebackBaseScreen: ()=>void 
+    comebackBaseScreen: () => void
 }
 
 
@@ -107,7 +119,7 @@ const CreatePlan = (props: Props) => {
     const { tasks } = useContext(TaskContext)
 
 
-    const reset = ()=>{
+    const reset = () => {
         setNameTask('')
         setDescription('')
         setDuration('')
@@ -126,12 +138,17 @@ const CreatePlan = (props: Props) => {
         }
 
         const keys = Object.keys(task)
-        for(let i = 0 ; i< keys.length ; i++){
+        for (let i = 0; i < keys.length; i++) {
             //@ts-ignore
-            if(task[keys[i]] === '' || task[keys[i]].length <= 0 || Number.isNaN(Number(task[keys[i]]))) {
+            if (task[keys[i]] === '' || task[keys[i]].length <= 0) {
                 Alert.alert(`Please enter valild ${keys[i]}`);
-                return 
+                return
             }
+        }
+
+        if (Number.isNaN(Number(task.duration))) {
+            Alert.alert(`Please enter valid duration`);
+            return
         }
 
 
@@ -143,7 +160,7 @@ const CreatePlan = (props: Props) => {
 
         storage.saveAllTask(listTask).then()
         Alert.alert('Task created successful !')
-        
+
         reset();
         props.comebackBaseScreen()
 
@@ -182,17 +199,30 @@ const CreatePlan = (props: Props) => {
                 {/*
                     Image picker 
                 */}
+                <StyledImageGroupWrapper>
+                    {awardUris.length > 0 && <StyledTextDescription>
+                        {'Award: '}
+                    </StyledTextDescription>}
+                    <ImageGroup images={awardUris} handleChangeImages={(results: ImagePickerResponse[]) => {
+                        setAwardUris(results.map(e => e.uri))
+                    }} />
+                </StyledImageGroupWrapper>
 
-                <ImageGroup images={awardUris} />
-                <StyleImagePickButton onPress={() => {
+
+                {awardUris.length <= 0 && <StyleImagePickButton onPress={() => {
                     setAwardVisible(true)
                 }}>
                     <StyledText >
                         Pick Awards Image
                     </StyledText>
-                </StyleImagePickButton>
+                </StyleImagePickButton>}
+
 
                 <PhotoPickerModal
+                    limitImageNumber={3}
+                    overLimitedImageNumberHandle={() => {
+                        Alert.alert(`You can't choose more !!`)
+                    }}
                     endingPickImageHandle={(results: ImagePickerResponse[]) => {
                         setAwardUris(results.map(e => e.uri))
                         setAwardVisible(false)
@@ -210,15 +240,25 @@ const CreatePlan = (props: Props) => {
                     Image picker 
                 */}
 
-                <ImageGroup images={punishUris} />
 
-                <StyleImagePickButton onPress={() => {
+                <StyledImageGroupWrapper>
+                    {punishUris.length > 0 && <StyledTextDescription>
+                        {'Punishments: '}
+                    </StyledTextDescription>}
+                    <ImageGroup images={punishUris} handleChangeImages={(results: ImagePickerResponse[]) => {
+                        setPunishUris(results.map(e => e.uri))
+                    }} />
+                </StyledImageGroupWrapper>
+
+
+                {punishUris.length <= 0 && <StyleImagePickButton onPress={() => {
                     setIsVisible(true)
                 }}>
                     <StyledText >
                         Pick Punish Image
                     </StyledText>
-                </StyleImagePickButton>
+                </StyleImagePickButton>}
+
 
                 <PhotoPickerModal
                     endingPickImageHandle={(results: ImagePickerResponse[]) => {
