@@ -26,11 +26,10 @@ interface Props {
 }
 const ImageGroup = (props: Props)=>{
 
-    const [images , setImages ] = useState<ImagePickerResponse[]>([])
     const [isVisible , setIsVisible ]= useState(false)
 
     const onPressHandle = ()=>{
-        Alert.alert('','Do you want to change these items ?',[
+        props.handleChangeImages && Alert.alert('','Do you want to change these items ?',[
             {
                 text:'Cancel',
                 onPress : ()=> {}
