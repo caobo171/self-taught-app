@@ -60,7 +60,7 @@ const BadModal = (props: Props) => {
             <StyledView>
                 <StyledBadText>{'Ohh , Bad !! '}</StyledBadText>
 
-                <ImageGroup images={props.task.award} />
+                <ImageGroup images={props.task.punish} />
 
                 <StyledDescriptionText>
                     {`Don't worry !! Stay strong ~!!  let's do these `}
