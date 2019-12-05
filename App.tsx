@@ -16,7 +16,7 @@ import Main from './src/pages/main'
 import { TaskType } from './src/types';
 import storage from './src/services/storage'
 import useEffectOnce from 'react-use/lib/useEffectOnce';
-
+import SplashScreen from 'react-native-splash-screen'
 import LocalNotification from './notification'
 
 const HEIGHT = Dimensions.get('window').height;
@@ -38,18 +38,16 @@ const App = () => {
 
   const [tasks, setTasks] = useState<TaskType[]>([])
 
-  const [update, forceUpdate] = useState(false)
 
-  // useEffectOnce(()=>{
-  //   LocalNotification.register()
-  // })
-
-  useEffect(() => {
+  useEffectOnce(()=>{
+    SplashScreen.hide();
     (async () => {
       const resTasks = await storage.getListTask()
       setTasks(resTasks)
     })()
-  }, [update])
+  })
+
+
 
   let panResponder = PanResponder.create({
     onStartShouldSetPanResponder: (evt, getstureState) => true,

@@ -66,7 +66,7 @@ class Storage  {
             if(date.getMonth()=== currentDate.getMonth() 
             && date.getDate() === currentDate.getDate() 
             && date.getFullYear() === currentDate.getFullYear()){
-                Alert.alert('Oop !! ', `You 've reviewed today !!`);
+               
                 return false
             }
         }
